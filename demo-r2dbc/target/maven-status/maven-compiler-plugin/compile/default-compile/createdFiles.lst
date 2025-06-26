@@ -1,0 +1,6 @@
+com/ejemplo/controller/ClienteController.class
+com/ejemplo/service/ClienteService.class
+com/ejemplo/DemoApplication.class
+com/ejemplo/model/Cliente.class
+com/ejemplo/OpenApiConfig.class
+com/ejemplo/repository/ClienteRepository.class
