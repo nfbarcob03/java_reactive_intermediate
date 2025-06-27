@@ -34,6 +34,7 @@ public class TransactionService {
 
         return transactionRepository.save(tx)
                 .flatMap(ledgerClient::postEntry)
+                .flatMap(this::updateStateCorrect)
                 .map(this::toDto)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(1)))
                 .onErrorResume(e -> rollback(tx, e));
@@ -49,6 +50,7 @@ public class TransactionService {
 
         return transactionRepository.save(tx)
                 .flatMap(ledgerClient::postEntry)
+                .flatMap(this::updateStateCorrect)
                 .map(this::toDto)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(1)))
                 .onErrorResume(e -> rollback(tx, e));
@@ -63,6 +65,11 @@ public class TransactionService {
     private Mono<TransactionDto> rollback(Transaction tx, Throwable e) {
         tx.setStatus(TransactionStatus.FAILED);
         return transactionRepository.save(tx).then(Mono.error(e));
+    }
+
+    private Mono<Transaction> updateStateCorrect(Transaction tx) {
+        tx.setStatus(TransactionStatus.POSTED);
+        return transactionRepository.save(tx);
     }
 
     private TransactionDto toDto(Transaction transaction) {

@@ -73,45 +73,45 @@ public class AMQPconfig {
         return BindingBuilder.bind(deadLetterQueue()).to(deadLetterExchange()).with("dlx.routing");
     }
 
-    //Taller 7 B
-    @Bean
-    public DirectExchange ledgerExchange() {
-        return new DirectExchange("ledger.exchange");
-    }
-
-    @Bean
-    public Queue requestQueue() {
-        return new Queue("ledger.entry.request.queue", true);
-    }
-
-    @Bean
-    public Binding binding() {
-        return BindingBuilder
-                .bind(requestQueue())
-                .to(ledgerExchange())
-                .with("ledger.entry.request");
-    }
-
- // clase profesor
-
-    @Bean
-    public Queue queue(){
-        return new Queue("trasnaction.created.queue", true);
-    }
-
-    @Bean
-    public DirectExchange transactionExchange() {
-        return new DirectExchange(EXCHANGE);
-    }
-
-    @Bean
-    public Binding bindingDirect() {
-        return BindingBuilder
-                .bind(queue())
-                .to(transactionExchange())
-                .with("ledger.entry.request");
-    }
-
+//    //Taller 7 B
+//    @Bean
+//    public DirectExchange ledgerExchange() {
+//        return new DirectExchange("ledger.exchange");
+//    }
+//
+//    @Bean
+//    public Queue requestQueue() {
+//        return new Queue("ledger.entry.request.queue", true);
+//    }
+//
+//    @Bean
+//    public Binding binding() {
+//        return BindingBuilder
+//                .bind(requestQueue())
+//                .to(ledgerExchange())
+//                .with("ledger.entry.request");
+//    }
+//
+// // clase profesor
+//
+//    @Bean
+//    public Queue queue(){
+//        return new Queue("trasnaction.created.queue", true);
+//    }
+//
+//    @Bean
+//    public DirectExchange transactionExchange() {
+//        return new DirectExchange(EXCHANGE);
+//    }
+//
+//    @Bean
+//    public Binding bindingDirect() {
+//        return BindingBuilder
+//                .bind(queue())
+//                .to(transactionExchange())
+//                .with("ledger.entry.request");
+//    }
+//
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();

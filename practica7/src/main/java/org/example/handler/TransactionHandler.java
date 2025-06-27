@@ -52,10 +52,10 @@ public class TransactionHandler {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> cashOutReply(ServerRequest request) {
-        return request.bodyToMono(CashRequestDto.class)
-                .flatMap(transactionService::cashOut)
-                .flatMap(ledgerClient::sendTransaction) // Envia por AMQP y espera respuesta
-                .flatMap(tx -> ServerResponse.ok().bodyValue(tx));
-    }
+//    public Mono<ServerResponse> cashOutReply(ServerRequest request) {
+//        return request.bodyToMono(CashRequestDto.class)
+//                .flatMap(transactionService::cashOut)
+//                .flatMap(ledgerClient::sendTransaction) // Envia por AMQP y espera respuesta
+//                .flatMap(tx -> ServerResponse.ok().bodyValue(tx));
+//    }
 }

@@ -40,6 +40,18 @@ public class TrasnactionFlowTest {
                 .expectBody()
                 .jsonPath("$.status").isEqualTo("POSTED");
     }
-    
+
+    @Test
+    void findByIdTest(){
+
+        client.get().uri("tx/"+"685e2aad82491d1f1488fd3e")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("POSTED");
+    }
+
+
+
 
 }

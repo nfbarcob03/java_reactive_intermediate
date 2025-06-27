@@ -10,12 +10,12 @@ import static org.example.config.AMQPconfig.ROUTING_KEY;
 @Component
 public class Publisher {
 
-    private final AmqpTemplate amqpTemplate;
-
-    public Publisher(AmqpTemplate amqpTemplate) {
-        this.amqpTemplate = amqpTemplate;
-    }
-    public void publish(TransactionDto tx) {
-        amqpTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, tx);
-    }
+//    private final AmqpTemplate amqpTemplate;
+//
+//    public Publisher(AmqpTemplate amqpTemplate) {
+//        this.amqpTemplate = amqpTemplate;
+//    }
+//    public void publish(TransactionDto tx) {
+//        amqpTemplate.convertAndSend(EXCHANGE, ROUTING_KEY, tx);
+//    }
 }

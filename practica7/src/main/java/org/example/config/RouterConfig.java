@@ -16,7 +16,7 @@ public class RouterConfig {
                 .route()
                 .POST("/cash-in", transactionHandler::cashIn)
                 .POST("/cash-out", transactionHandler::cashOut)
-                .POST("/cash-out-reply", transactionHandler::cashOutReply)
+                //.POST("/cash-out-reply", transactionHandler::cashOutReply)
                 .GET("/tx/{id}", transactionHandler::findById)
                 .build();
     }

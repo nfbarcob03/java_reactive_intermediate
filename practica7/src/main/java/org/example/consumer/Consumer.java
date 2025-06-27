@@ -10,10 +10,10 @@ import java.time.Instant;
 @Component
 public class Consumer {
 
-    @RabbitListener(queues = "trasnaction.created.queue")
-    public Transaction handle(Transaction tx){
-        tx.setStatus(TransactionStatus.POSTED);
-        tx.setCreatedAt(Instant.now());
-        return tx;
-    }
+//    @RabbitListener(queues = "trasnaction.created.queue")
+//    public Transaction handle(Transaction tx){
+//        tx.setStatus(TransactionStatus.POSTED);
+//        tx.setCreatedAt(Instant.now());
+//        return tx;
+//    }
 }
