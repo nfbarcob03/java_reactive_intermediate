@@ -1,7 +1,10 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/cashflow
+      uri: mongodb+srv://user:xnmt4OWnwGQxEl6m@cluster0.aqjmgm9.mongodb.net/banking
+
+  rabbitmq:
+    addresses: amqps://nujwcdrx:ijnO3_pkjkb8Oq19KbLxWhwvVzWXNZmZ@leopard.lmq.cloudamqp.com/nujwcdrx
 ledger:
   base-url: http://localhost:8081
 

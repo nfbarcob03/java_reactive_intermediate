@@ -2,10 +2,12 @@ package org.example.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.example.model.Transaction;
 import reactor.core.publisher.Mono;
 
+@Service
 public class LedgerClient {
     private final WebClient client;
     private static final Logger log = LoggerFactory.getLogger(LedgerClient.class);
@@ -15,7 +17,7 @@ public class LedgerClient {
     }
 
     public Mono<Transaction> postEntry(Transaction transaction) {
-        log.info("POST /ledger/entriees - Request body {}", transaction);
+        log.info("POST /ledger/entries - Request body {}", transaction);
         return client.post().uri("/ledger/entries")
                 .bodyValue(transaction)
                 .retrieve()

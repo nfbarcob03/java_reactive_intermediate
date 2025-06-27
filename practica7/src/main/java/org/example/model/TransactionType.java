@@ -1,5 +1,3 @@
 package org.example.model;
 
-public enum TransactionType {
-    CASH_IN, CASH_OUT
-}
+public enum TransactionType { CASH_IN, CASH_OUT }

@@ -6,24 +6,28 @@ import org.example.model.Transaction;
 import org.example.model.TransactionStatus;
 import org.example.model.TransactionType;
 import org.example.repo.TransactionRepository;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.time.Instant;
 
+@Service
 public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final LedgerClient ledgerClient;
+    private final Publisher publisher;
 
-    public TransactionService(TransactionRepository transactionRepository, LedgerClient ledgerClient) {
+    public TransactionService(TransactionRepository transactionRepository, LedgerClient ledgerClient, Publisher publisher) {
         this.transactionRepository = transactionRepository;
         this.ledgerClient = ledgerClient;
+        this.publisher = publisher;
     }
 
     public Mono<TransactionDto> cashIn(CashRequestDto req){
         Transaction tx = Transaction.builder().amount(req.amount())
+                .type(TransactionType.CASH_IN)
                 .currency(req.currency()).type(TransactionType.CASH_IN)
                 .status(TransactionStatus.PENDING)
                 .createdAt(Instant.now()).build();
@@ -35,8 +39,10 @@ public class TransactionService {
                 .onErrorResume(e -> rollback(tx, e));
     }
 
+
     public Mono<TransactionDto> cashOut(CashRequestDto req){
         Transaction tx = Transaction.builder().amount(req.amount())
+                .type(TransactionType.CASH_OUT)
                 .currency(req.currency()).type(TransactionType.CASH_OUT)
                 .status(TransactionStatus.PENDING)
                 .createdAt(Instant.now()).build();

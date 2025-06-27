@@ -17,6 +17,7 @@ import java.time.Instant;
 @Builder(toBuilder = true)
 @Data
 @Document("transactions")
+@ToString
 public class Transaction {
     @Id
     private String id;

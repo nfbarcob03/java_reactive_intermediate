@@ -6,9 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TransactionRepository extends ReactiveMongoRepository<Transaction, String> {
-
-    // Define custom query methods if needed
-    // For example:
-    // Mono<Transaction> findByTransactionId(String transactionId);
-    // Flux<Transaction> findByStatus(String status);
 }

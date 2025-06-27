@@ -1,5 +1,7 @@
 package org.example.handler;
 
+import org.example.model.Transaction;
+import org.example.model.TransactionStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -25,15 +27,12 @@ public class LedgerRouterHandler {
     }
 
     private Mono<ServerResponse> createEntry (ServerRequest request){
-        return request.bodyToMono(Map.class)
+        return request.bodyToMono(Transaction.class)
                 .flatMap(body -> {
-                    Map<String,Object>result = new HashMap<>();
-                    result.put("status","POSTED");
-                    result.put("id", UUID.randomUUID().toString());
-                    result.put("createdAt", Instant.now());
+                    body.setStatus(TransactionStatus.POSTED);
                     return ServerResponse.ok()
                             .contentType(MediaType.APPLICATION_JSON)
-                            .bodyValue(result);
+                            .bodyValue(body);
         });
     }
 
