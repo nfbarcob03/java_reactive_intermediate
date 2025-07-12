@@ -10,7 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder(toBuilder = true)
-public class Movement {
+public class
+Movement {
 
     private String id;
     private String movementId;

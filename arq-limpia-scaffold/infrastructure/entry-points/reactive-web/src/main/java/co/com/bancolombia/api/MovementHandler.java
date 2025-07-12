@@ -1,5 +1,6 @@
 package co.com.bancolombia.api;
 
+import co.com.bancolombia.model.box.UploadBoxeport;
 import co.com.bancolombia.usecase.uploadmovements.UploadMovementsUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -34,9 +35,9 @@ public class MovementHandler {
                             });
                     return uploadMovementsUseCase.uploadMovementCSV(boxId, fileContent)
                              .collectList()
-                             .map(movements -> new UploadReport(movements.size(), boxId))
-                            .flatMap(uploadReport -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-                                    .bodyValue(uploadReport));
+                             .map(movements -> new UploadBoxeport(movements.size(), boxId))
+                            .flatMap(uploadBoxeport -> ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
+                                    .bodyValue(uploadBoxeport));
                 });
     }
 
