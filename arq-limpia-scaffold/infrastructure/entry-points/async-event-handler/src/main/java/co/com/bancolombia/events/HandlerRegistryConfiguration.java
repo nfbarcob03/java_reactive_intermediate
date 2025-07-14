@@ -13,6 +13,9 @@ public class HandlerRegistryConfiguration {
         return HandlerRegistry.register()
                 .listenEvent("box.event.created", events::handleEventA, Object.class)
                 .listenEvent("box.event.deleted", events::handleEventDeletedBox, Object.class)
-                .listenEvent("box.event.name.update", events::handleEventUpdateName, Object.class);
+                .listenEvent("box.event.name.update", events::handleEventUpdateName, Object.class)
+                .listenEvent("movement.event.validation.error", events::handleEventErrorValidationMovement, Object.class)
+                .listenEvent("movement.event.upload", events::handleEventMovementUpload, Object.class);
+
     }
 }

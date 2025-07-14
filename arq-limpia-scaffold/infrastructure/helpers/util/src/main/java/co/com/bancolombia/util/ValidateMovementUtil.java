@@ -1,7 +1,9 @@
 package co.com.bancolombia.util;
 
+import co.com.bancolombia.model.events.gateways.EventsGateway;
 import co.com.bancolombia.model.movement.Movement;
 import co.com.bancolombia.model.movement.gateways.ValidateMovementRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -13,7 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 @Component
+@AllArgsConstructor
 public class ValidateMovementUtil implements ValidateMovementRepository {
+
+    private final EventsGateway eventsGateway;
 
     @Override
     public Mono<Boolean> validateMovement(Movement movement, String boxId, Set<String> movementIds) {
@@ -60,7 +65,7 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
 
         // Emit event if there are errors
         if (!errors.isEmpty()) {
-            emitValidationErrorsEvent(movement, errors);
+            emitValidationErrorsEvent(boxId,movement, errors);
             return Mono.just(false);
         }
 
@@ -87,8 +92,9 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
         return false;
     }
 
-    private void emitValidationErrorsEvent(Movement movement, List<String> errors) {
-        // Implement the logic to emit an event with the movement and its validation errors
-        System.out.println("Validation errors for movement ID " + movement.getMovementId() + ": " + errors);
+    private void emitValidationErrorsEvent(String boxId, Movement movement, List<String> errors) {
+        eventsGateway.emitMovementsErrors("boxId: " + boxId + " movement: " + movement.toString()
+                        + " error: " + errors.toString())
+                .subscribe(); // Suscríbete para ejecutar el Mono
     }
 }

@@ -28,4 +28,14 @@ public class EventsHandler {
         log.info("Event deleted box received: {} -> {}", event.getName(), event.getData());
         return Mono.empty();
     }
+
+    public Mono<Void> handleEventErrorValidationMovement(DomainEvent<Object> event) {
+        log.info("Event error movement validation received: {} -> {}", event.getName(), event.getData());
+        return Mono.empty();
+    }
+
+    public Mono<Void> handleEventMovementUpload(DomainEvent<Object> event) {
+        log.info("Event upload movement received: {} -> {}", event.getName(), event.getData());
+        return Mono.empty();
+    }
 }

@@ -8,4 +8,8 @@ public interface EventsGateway {
     Mono<Void> emitUpdateName(Object event);
     Mono<Void> emitDeletedBox(Object event);
 
+    Mono<Void> emitMovementsErrors(Object event);
+
+
+    Mono<Void> emitMovementUploadEvent(Object event);
 }

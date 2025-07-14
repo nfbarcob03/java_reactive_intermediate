@@ -3,6 +3,8 @@ package co.com.bancolombia.usecase.uploadmovements;
 import co.com.bancolombia.model.ErrorResponse;
 import co.com.bancolombia.model.box.UploadBoxReport;
 import co.com.bancolombia.model.box.gateways.BoxRepository;
+import co.com.bancolombia.model.events.BoxMovementsUploadedEvent;
+import co.com.bancolombia.model.events.gateways.EventsGateway;
 import co.com.bancolombia.model.movement.Movement;
 import co.com.bancolombia.model.movement.gateways.MovementRepository;
 import co.com.bancolombia.model.movement.gateways.RenderFileRepository;
@@ -26,6 +28,7 @@ public class UploadMovementsUseCase {
     private final RenderFileRepository renderFileRepository;
     private final ValidateMovementRepository movementValidationRepository;
     private final BoxRepository boxRepository;
+    private final EventsGateway eventsGateway;
 
     public Mono<Object> uploadMovementCSV(String boxId, Flux<ByteBuffer> fileBytes) {
         Set<String> movementIds = new HashSet<>();
@@ -56,15 +59,28 @@ public class UploadMovementsUseCase {
                                     .flatMap(movementRepository::save)
                                     .subscribe();
 
+
                             // Create and return the UploadBoxReport
-                            return Mono.just(new UploadBoxReport(
+                            UploadBoxReport report = new UploadBoxReport(
                                     boxId,
                                     total,
                                     success,
                                     failed,
-                                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), // Format the date as ISO 8601 string
+                                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                                     "ralzate"
-                            ));
+                            );
+
+                            // Emit the event
+                            eventsGateway.emitMovementUploadEvent(new BoxMovementsUploadedEvent(
+                                    report.getBoxId(),
+                                    report.getTotal(),
+                                    report.getSuccess(),
+                                    report.getFailed(),
+                                    report.getUploadedAt(),
+                                    report.getUploadedBy()
+                            )).subscribe();
+
+                            return Mono.just(report);
                         }));
     }
 }
