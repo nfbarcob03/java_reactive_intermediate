@@ -3,6 +3,7 @@ package co.com.bancolombia.api;
 import co.com.bancolombia.model.ErrorResponse;
 import co.com.bancolombia.model.box.UploadBoxReport;
 import co.com.bancolombia.usecase.uploadmovements.UploadMovementsUseCase;
+import co.com.bancolombia.util.FileValidationUtil;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -16,9 +17,11 @@ import java.util.Map;
 public class MovementHandler {
 
     private final UploadMovementsUseCase uploadMovementsUseCase;
+    private final FileValidationUtil fileValidationUtil;
 
-    public MovementHandler(UploadMovementsUseCase uploadMovementsUseCase) {
+    public MovementHandler(UploadMovementsUseCase uploadMovementsUseCase, FileValidationUtil fileValidationUtil) {
         this.uploadMovementsUseCase = uploadMovementsUseCase;
+        this.fileValidationUtil = fileValidationUtil;
     }
 
     public Mono<ServerResponse> uploadCSV(ServerRequest serverRequest) {
@@ -31,23 +34,30 @@ public class MovementHandler {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(Map.of("error", "File is missing"));
                     }
-                    Flux<ByteBuffer> fileContent = filePart.content()
-                            .map(dataBuffer -> {
+
+                    // Extract file metadata
+                    String contentType = filePart.headers().getContentType().toString();
+                    long fileSize = filePart.headers().getContentLength();
+
+                    // Validate file
+                    return fileValidationUtil.validateFile(contentType, fileSize)
+                            .thenMany(filePart.content().map(dataBuffer -> {
                                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
                                 dataBuffer.read(bytes);
                                 return ByteBuffer.wrap(bytes);
-                            });
-                    return uploadMovementsUseCase.uploadMovementCSV(boxId, fileContent)
-                            .flatMap(result -> {
-                                if (result instanceof UploadBoxReport) {
-                                    return ServerResponse.ok()
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .bodyValue(result);
-                                }
-                                return ServerResponse.badRequest()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .bodyValue(result);
-                            })
+                            }))
+                            .collectList()
+                            .flatMap(fileContent -> uploadMovementsUseCase.uploadMovementCSV(boxId, Flux.fromIterable(fileContent))
+                                    .flatMap(result -> {
+                                        if (result instanceof UploadBoxReport) {
+                                            return ServerResponse.ok()
+                                                    .contentType(MediaType.APPLICATION_JSON)
+                                                    .bodyValue(result);
+                                        }
+                                        return ServerResponse.badRequest()
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .bodyValue(result);
+                                    }))
                             .onErrorResume(e -> ServerResponse.badRequest()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .bodyValue(Map.of("error", e.getMessage())));
