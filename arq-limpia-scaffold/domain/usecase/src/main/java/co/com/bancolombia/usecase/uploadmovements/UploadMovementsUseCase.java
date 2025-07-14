@@ -1,5 +1,6 @@
 package co.com.bancolombia.usecase.uploadmovements;
 
+import co.com.bancolombia.model.ErrorResponse;
 import co.com.bancolombia.model.box.UploadBoxReport;
 import co.com.bancolombia.model.box.gateways.BoxRepository;
 import co.com.bancolombia.model.movement.Movement;
@@ -13,7 +14,9 @@ import reactor.core.publisher.Mono;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -24,39 +27,44 @@ public class UploadMovementsUseCase {
     private final ValidateMovementRepository movementValidationRepository;
     private final BoxRepository boxRepository;
 
-    public Mono<UploadBoxReport> uploadMovementCSV(String boxId, Flux<ByteBuffer> fileBytes) {
+    public Mono<Object> uploadMovementCSV(String boxId, Flux<ByteBuffer> fileBytes) {
         Set<String> movementIds = new HashSet<>();
 
         return boxRepository.findById(boxId)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Box ID does not exist: " + boxId)))
-                .thenMany(fileBytes.map(ByteBuffer::array)
+                .flatMap(box -> fileBytes.map(ByteBuffer::array)
                         .flatMapSequential(renderFileRepository::render)
-                        .doOnNext(movement -> movementIds.add(movement.getMovementId()))
                         .flatMap(movement -> movementValidationRepository.validateMovement(movement, boxId, movementIds)
-                                .map(isValid -> new Object[]{movement, isValid})))
-                .collectList()
-                .flatMap(results -> {
-                    int total = movementIds.size();
-                    int success = (int) results.stream().filter(result -> (boolean) result[1]).count();
-                    int failed = total - success;
+                                .flatMap(isValid -> {
+                                    if (isValid) {
+                                        movementIds.add(movement.getMovementId()); // Add only after validation
+                                        return Mono.just(new Object[]{movement, true});
+                                    } else {
+                                        return Mono.just(new Object[]{movement, false});
+                                    }
+                                }))
+                        .collectList()
+                        .flatMap(results -> {
+                            int total = results.size();
+                            int success = (int) results.stream().filter(result -> (boolean) result[1]).count();
+                            int failed = total - success;
 
-                    // Save only valid movements
-                    Flux.fromIterable(results)
-                            .filter(result -> (boolean) result[1])
-                            .map(result -> (Movement) result[0])
-                            .flatMap(movementRepository::save)
-                            .subscribe();
+                            // Save only valid movements
+                            Flux.fromIterable(results)
+                                    .filter(result -> (boolean) result[1])
+                                    .map(result -> (Movement) result[0])
+                                    .flatMap(movementRepository::save)
+                                    .subscribe();
 
-                    // Create and return the UploadBoxReport
-                    UploadBoxReport report = new UploadBoxReport(
-                            boxId,
-                            total,
-                            success,
-                            failed,
-                            LocalDateTime.now(),
-                            "ralzate"
-                    );
-                    return Mono.just(report);
-                });
+                            // Create and return the UploadBoxReport
+                            return Mono.just(new UploadBoxReport(
+                                    boxId,
+                                    total,
+                                    success,
+                                    failed,
+                                    LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), // Format the date as ISO 8601 string
+                                    "ralzate"
+                            ));
+                        }));
     }
 }

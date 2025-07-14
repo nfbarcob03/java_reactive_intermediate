@@ -40,14 +40,6 @@ public class RenderUtil implements RenderFileRepository {
             String currency = record.get("currency").trim();
             LocalDateTime date = LocalDateTime.parse(record.get("date").trim());
 
-            if(!type.equals(("INCOME")) && !type.equals("EXPENSE")) {
-                return Mono.error(new IllegalArgumentException("Invalid type: " + type));
-            }
-
-            if(amount.compareTo(BigDecimal.ZERO)<=0){
-                return Mono.error(new IllegalArgumentException("Amount must be greater than zero"));
-            }
-
             Movement movement = Movement.builder()
                     .movementId(movementsID)
                     .boxId(boxId)

@@ -7,13 +7,13 @@ public class UploadBoxReport {
     private int total;
     private int success;
     private int failed;
-    private LocalDateTime uploadedAt;
+    private String uploadedAt;
     private String uploadedBy;
 
     public UploadBoxReport() {
     }
 
-    public UploadBoxReport(String boxId, int total, int success, int failed, LocalDateTime uploadedAt, String uploadedBy) {
+    public UploadBoxReport(String boxId, int total, int success, int failed, String uploadedAt, String uploadedBy) {
         this.boxId = boxId;
         this.total = total;
         this.success = success;
@@ -54,11 +54,11 @@ public class UploadBoxReport {
         this.failed = failed;
     }
 
-    public LocalDateTime getUploadedAt() {
+    public String getUploadedAt() {
         return uploadedAt;
     }
 
-    public void setUploadedAt(LocalDateTime uploadedAt) {
+    public void setUploadedAt(String uploadedAt) {
         this.uploadedAt = uploadedAt;
     }
 

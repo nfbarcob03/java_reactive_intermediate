@@ -2,6 +2,7 @@ package co.com.bancolombia.util;
 
 import co.com.bancolombia.model.movement.Movement;
 import co.com.bancolombia.model.movement.gateways.ValidateMovementRepository;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Component
 public class ValidateMovementUtil implements ValidateMovementRepository {
 
     @Override
@@ -20,7 +22,7 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
         // Validate movementId
         if (movement.getMovementId() == null || movement.getMovementId().isEmpty()) {
             errors.add("Movement ID is mandatory");
-        } else if (!movementIds.add(movement.getMovementId())) {
+        } else if (movementIds.contains(movement.getMovementId())) {
             errors.add("Duplicate Movement ID in file: " + movement.getMovementId());
         }
 
@@ -29,8 +31,6 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
             errors.add("Box ID is mandatory");
         } else if (!boxId.equals(movement.getBoxId())) {
             errors.add("The box ID of the transaction does not match the box ID of the uploaded file");
-        } else {
-            movement.setBoxId(boxId);
         }
 
         // Validate date
@@ -39,7 +39,7 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
         }
 
         // Validate type
-        if (!"INCOME".equals(movement.getType()) && !"EXPENSE".equals(movement.getType())) {
+        if (movement.getType() == null || (!"INCOME".equals(movement.getType()) && !"EXPENSE".equals(movement.getType()))) {
             errors.add("Invalid type, must be INCOME or EXPENSE");
         }
 
@@ -64,6 +64,8 @@ public class ValidateMovementUtil implements ValidateMovementRepository {
             return Mono.just(false);
         }
 
+        // Add movementId to the set only after successful validation
+        movementIds.add(movement.getMovementId());
         return Mono.just(true);
     }
 
